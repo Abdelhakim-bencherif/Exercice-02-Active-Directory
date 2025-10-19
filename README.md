@@ -19,16 +19,15 @@ J’ai ensuite automatisé la création des utilisateurs et des groupes à parti
 
 ## Étape 1 – Installation du rôle AD DS et création du domaine
 
-J’ai d’abord installé le rôle Active Directory et j’ai créé le domaine `laplateforme.io` avec le mot de passe de restauration `Azerty_2025!`.
+J’ai d’abord installé le rôle Active Directory et j’ai créé le domaine laplateforme.io avec le mot de passe de restauration Azerty_2025!.
 
 ### Script : `Install-ADDS.ps1`
 
-```powershell
 Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
 
-Install-ADDSForest `
-    -DomainName "laplateforme.io" `
-    -SafeModeAdministratorPassword (ConvertTo-SecureString "Azerty_2025!" -AsPlainText -Force) `
+Install-ADDSForest 
+    -DomainName "laplateforme.io" 
+    -SafeModeAdministratorPassword (ConvertTo-SecureString "Azerty_2025!" -AsPlainText -Force) 
     -Force
 
 ## Étape 2 – Vérification du domaine
@@ -65,25 +64,22 @@ foreach ($user in $users) {
     $SamAccountName = ($prenom.Substring(0,1) + $nom).ToLower()
     $UPN = "$SamAccountName@laplateforme.io"
     $OU = "OU=Utilisateurs,DC=laplateforme,DC=io"
-
     # Création de l’utilisateur
     if (-not (Get-ADUser -Filter "SamAccountName -eq '$SamAccountName'" -ErrorAction SilentlyContinue)) {
-        New-ADUser `
-            -Name "$prenom $nom" `
+        New-ADUser 
+            -Name "$prenom $nom" 
             -GivenName $prenom `
-            -Surname $nom `
-            -SamAccountName $SamAccountName `
-            -UserPrincipalName $UPN `
-            -AccountPassword $DefaultPassword `
-            -ChangePasswordAtLogon $true `
-            -Enabled $true `
+            -Surname $nom 
+            -SamAccountName $SamAccountName 
+            -UserPrincipalName $UPN 
+            -AccountPassword $DefaultPassword 
+            -ChangePasswordAtLogon $true 
+            -Enabled $true 
             -Path $OU
         Write-Host "✅ Utilisateur créé : $prenom $nom"
     }
-
     # Ajout aux groupes
     $groupes = @($user.groupe1, $user.groupe2, $user.groupe3, $user.groupe4, $user.groupe5, $user.groupe6) | Where-Object { $_ -ne "" }
-
     foreach ($groupe in $groupes) {
         if (-not (Get-ADGroup -Filter "Name -eq '$groupe'" -ErrorAction SilentlyContinue)) {
             New-ADGroup -Name $groupe -GroupScope Global -GroupCategory Security
